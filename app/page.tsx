@@ -1,88 +1,33 @@
-'use client';
-
-import Link from 'next/link';
-import { useState } from 'react';
-
-type Mode = 'login' | 'register';
-
-function saveParticipant(data: { id: string; name: string }) {
-  localStorage.setItem('pencaParticipant', JSON.stringify(data));
-}
-
-export default function HomePage() {
-  const [mode, setMode] = useState<Mode>('login');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  async function submit(formData: FormData) {
-    setLoading(true);
-    setMessage(null);
-    setError(null);
-    const payload = Object.fromEntries(formData.entries());
-
-    const res = await fetch(`/api/auth/${mode}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const json = await res.json();
-    setLoading(false);
-
-    if (!json.ok) {
-      setError(json.error || 'No se pudo completar la acción.');
-      return;
-    }
-
-    saveParticipant(json.data.participant);
-    setMessage(mode === 'register' ? 'Registro completo. Ya podés jugar.' : 'Entrada correcta.');
-    window.location.href = '/jugar';
-  }
-
+export default function RulesPage() {
   return (
-    <div className="hero">
-      <section className="card hero-card">
+    <section className="card">
+      <div className="page-header compact-header">
         <div>
-          <img className="hero-logo" src="/salados-2026-logo.svg" alt="Penca Salados 2026" />
-          <div className="eyebrow section">Escuela de Música Salados</div>
-          <h1>La penca del Mundial 2026</h1>
-          <p>
-            Pronosticá los partidos habilitados, compará con el resto y seguí la tabla general. Las llaves se abren solas cuando se conocen los clasificados reales.
-          </p>
+          <div className="eyebrow">Reglamento oficial de la penca</div>
+          <h1>Reglas de juego</h1>
+          <p>Todo pensado para que la experiencia sea clara, competitiva y fácil de seguir desde el celular.</p>
         </div>
-        <div className="actions">
-          <Link href="/jugar" className="button warn">Ir a jugar</Link>
-          <Link href="/tabla" className="button secondary">Ver tabla</Link>
-        </div>
-      </section>
+      </div>
 
-      <section className="card">
-        <div className="eyebrow">Entrar a la penca</div>
-        <h2>{mode === 'login' ? 'Bienvenido/a de vuelta' : 'Crear participante'}</h2>
-        <p>Usá tu nombre y un PIN. Guardá ese PIN para poder volver a entrar y editar antes del cierre.</p>
+      <div className="grid two section">
+        <div className="stat"><span>Puntaje exacto</span><strong>5 pts</strong><p>Si acertás el marcador exacto.</p></div>
+        <div className="stat"><span>Ganador o empate</span><strong>3 pts</strong><p>Si acertás el resultado general del partido.</p></div>
+        <div className="stat"><span>Diferencia correcta</span><strong>+1</strong><p>Bonus adicional por diferencia de goles.</p></div>
+        <div className="stat"><span>Cierre automático</span><strong>1 min</strong><p>Antes del inicio de cada partido.</p></div>
+      </div>
 
-        <div className="actions" style={{ marginTop: 0 }}>
-          <button className={`button ${mode === 'login' ? '' : 'secondary'}`} onClick={() => setMode('login')}>Entrar</button>
-          <button className={`button ${mode === 'register' ? '' : 'secondary'}`} onClick={() => setMode('register')}>Registrarme</button>
-        </div>
-
-        <form action={submit} className="form section">
-          <label className="label">Nombre
-            <input className="input" name="name" placeholder="Tu nombre" required />
-            <span className="help">Si hay otro igual, agregá apellido o apodo.</span>
-          </label>
-          <label className="label">PIN
-            <input className="input" name="pin" type="password" inputMode="numeric" placeholder="4 a 8 números" required />
-            <span className="help">El PIN protege tus pronósticos.</span>
-          </label>
-          {message && <div className="alert success">{message}</div>}
-          {error && <div className="alert error">{error}</div>}
-          <button disabled={loading} className="button warn" type="submit">
-            {loading ? 'Guardando...' : mode === 'register' ? 'Crear cuenta' : 'Entrar'}
-          </button>
-        </form>
-      </section>
-    </div>
+      <div className="grid two section">
+        <article className="card flat">
+          <h2>Fase eliminatoria</h2>
+          <p>Los partidos de llaves futuras no aparecen hasta que estén definidas las dos selecciones reales. Cuando el admin carga resultados, la app actualiza automáticamente quién avanza.</p>
+          <p>Si un partido eliminatorio termina empatado y un equipo avanza por penales, el admin puede indicarlo manualmente.</p>
+        </article>
+        <article className="card flat">
+          <h2>Comparación entre participantes</h2>
+          <p>En el detalle de cada partido podés ver qué pronóstico cargó cada participante. Esto facilita comparar elecciones, tendencias y resultados.</p>
+          <p>El ranking general se recalcula cuando se cargan resultados manuales o cuando el admin toca “Recalcular”.</p>
+        </article>
+      </div>
+    </section>
   );
 }

@@ -1,21 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" role="img" aria-label="Penca Salados 2026">
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="#091A58"/>
+  <rect x="24" y="24" width="464" height="464" rx="96" stroke="rgba(255,255,255,0.16)" stroke-width="2"/>
+  <path d="M86 114C126 80 182 64 264 64C304 64 346 71 395 89V150C351 128 312 118 276 118C228 118 196 130 174 156C157 175 148 202 148 236H328V290H148V310C148 342 157 367 176 386C199 409 234 420 284 420C324 420 362 412 398 397V452C355 468 314 476 264 476C185 476 128 456 90 416C55 378 36 326 36 260C36 195 53 146 86 114Z" fill="url(#paint0_linear_1_2)"/>
+  <path d="M351 108C401 108 440 123 468 154C493 181 506 216 506 259C506 312 490 354 459 386C428 418 387 434 336 434C286 434 245 417 214 383C184 349 168 307 168 257C168 210 183 171 213 141C244 119 290 108 351 108ZM348 162C314 162 287 171 268 190C249 209 240 233 240 264C240 300 249 329 267 350C286 371 313 382 350 382C385 382 412 372 430 350C448 329 457 300 457 265C457 233 448 208 429 189C411 171 384 162 348 162Z" fill="url(#paint1_linear_1_2)" fill-opacity="0.92"/>
+  <circle cx="404" cy="125" r="38" fill="#BAFF29"/>
+  <path d="M444 281C444 344.513 392.513 396 329 396C265.487 396 214 344.513 214 281C214 217.487 265.487 166 329 166C392.513 166 444 217.487 444 281ZM277.264 281C277.264 309.571 300.429 332.736 329 332.736C357.571 332.736 380.736 309.571 380.736 281C380.736 252.429 357.571 229.264 329 229.264C300.429 229.264 277.264 252.429 277.264 281Z" fill="#F5F1E8"/>
+  <path d="M146 90C205 83 252 80 286 80C351 80 403 93 443 119" stroke="#7B35FF" stroke-width="18" stroke-linecap="round"/>
+  <path d="M97 462H212" stroke="#F83B31" stroke-width="22" stroke-linecap="round"/>
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#00A6A6"/>
-      <stop offset="0.38" stop-color="#23408E"/>
-      <stop offset="0.72" stop-color="#E63E30"/>
-      <stop offset="1" stop-color="#F5A623"/>
+    <linearGradient id="paint0_linear_1_2" x1="58" y1="90" x2="414" y2="456" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7B35FF"/>
+      <stop offset="0.33" stop-color="#2446FF"/>
+      <stop offset="0.66" stop-color="#00C787"/>
+      <stop offset="1" stop-color="#BAFF29"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#101124" flood-opacity=".22"/>
-    </filter>
+    <linearGradient id="paint1_linear_1_2" x1="178" y1="108" x2="506" y2="434" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF4338"/>
+      <stop offset="0.4" stop-color="#C6152E"/>
+      <stop offset="1" stop-color="#6D133A"/>
+    </linearGradient>
   </defs>
-  <rect width="420" height="420" rx="96" fill="#FAF7EF"/>
-  <circle cx="210" cy="210" r="150" fill="url(#g)" filter="url(#shadow)"/>
-  <circle cx="210" cy="210" r="112" fill="#FAF7EF" opacity=".96"/>
-  <path d="M136 216c20-62 62-96 119-102 25-3 49 1 73 12-12 12-27 20-47 24-45 10-77 30-96 65-13 24-29 37-49 41 0-12 0-25 0-40z" fill="#23408E"/>
-  <path d="M135 273c35 17 72 22 111 14 39-8 67-28 85-59 3 63-43 116-107 122-42 4-73-14-89-77z" fill="#00A6A6"/>
-  <path d="M116 155c38-50 89-75 153-74 24 1 48 6 72 16-19-34-55-55-102-61-57-8-105 12-143 60-13 16-20 36-21 59 13-6 27-6 41 0z" fill="#E63E30" opacity=".95"/>
-  <text x="210" y="222" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="900" fill="#111827">S</text>
-  <text x="210" y="278" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#111827">2026</text>
 </svg>
