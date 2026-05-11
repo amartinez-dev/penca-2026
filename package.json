@@ -1,0 +1,26 @@
+{
+  "name": "penca-salados",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Penca moderna para el Mundial 2026 de Escuela de Música Salados",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.8",
+    "next": "^15.3.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.26.0",
+    "eslint-config-next": "^15.3.2",
+    "typescript": "^5.8.3"
+  }
+}
