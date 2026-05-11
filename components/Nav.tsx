@@ -4,7 +4,7 @@ export function Nav() {
   return (
     <header className="topbar">
       <Link className="brand" href="/">
-        <span className="brand-mark">S</span>
+        <span className="brand-mark"><img src="/salados-2026-logo.svg" alt="Penca Salados 2026" /></span>
         <span>
           <strong>Penca Salados</strong>
           <small>Mundial 2026</small>

@@ -1,6 +1,8 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
+import { TeamBadge } from '@/components/TeamBadge';
+import { isMatchResolved } from '@/lib/teamAssets';
 import type { Match, MatchPredictionRow } from '@/lib/types';
 
 function statusLabel(status: string) {
@@ -16,7 +18,6 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const [match, setMatch] = useState<Match | null>(null);
   const [predictions, setPredictions] = useState<MatchPredictionRow[]>([]);
   const [error, setError] = useState<string | null>(null);
-
 
   async function load(matchId: string) {
     setError(null);
@@ -41,13 +42,24 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   if (error) return <section className="card"><div className="alert error">{error}</div></section>;
   if (!match) return <section className="card"><div className="alert">Cargando partido...</div></section>;
 
+  const resolved = isMatchResolved(match);
+
   return (
     <section className="card">
       <div className="eyebrow">Detalle del partido</div>
-      <h1 style={{ fontSize: 'clamp(2rem, 4vw, 4.5rem)' }}>{match.home_team} vs {match.away_team}</h1>
+      <div className="match-card section">
+        <div className="match-team"><TeamBadge team={match.home_team} size="lg" /></div>
+        <div className="match-vs">
+          <div>VS</div>
+          <div className="score-pill section">{match.home_score === null ? '-' : `${match.home_score} - ${match.away_score}`}</div>
+        </div>
+        <div className="match-team away"><TeamBadge team={match.away_team} size="lg" /></div>
+      </div>
+
       <p>
         {new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'full', timeStyle: 'short' })} · {match.stage}{match.group_name ? ` · ${match.group_name}` : ''}
       </p>
+      {!resolved && <div className="alert section">Este partido todavía no acepta pronósticos porque falta definir al menos una selección.</div>}
 
       <div className="grid three section">
         <div className="stat"><span>Estado</span><strong style={{ fontSize: '1.25rem' }}>{statusLabel(match.status)}</strong></div>

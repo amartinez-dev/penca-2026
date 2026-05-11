@@ -24,9 +24,9 @@ export default function TablePage() {
 
   return (
     <section className="card">
-      <div className="eyebrow">Ranking</div>
+      <div className="eyebrow">Ranking general</div>
       <h1>Tabla de posiciones</h1>
-      <p>La tabla se actualiza sola cuando se cargan resultados o cuando la API sincroniza partidos finalizados.</p>
+      <p>La tabla se actualiza cuando se cargan resultados. Los exactos y aciertos sirven para comparar rendimiento además de puntos.</p>
 
       <div className="grid three section">
         <div className="stat"><span>Participantes</span><strong>{rows.length}</strong></div>
@@ -42,8 +42,8 @@ export default function TablePage() {
           <tbody>
             {rows.map((row, index) => (
               <tr key={row.participant_id}>
-                <td><strong>{index + 1}</strong></td>
-                <td>{row.name}</td>
+                <td><span className="score-pill">{index + 1}</span></td>
+                <td><strong>{row.name}</strong></td>
                 <td><strong>{row.points}</strong></td>
                 <td>{row.exactos}</td>
                 <td>{row.aciertos}</td>

@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { isMatchPredictable } from '@/lib/teamAssets';
 
 async function getClosingMinutes() {
   const supabase = supabaseAdmin();
   const { data } = await supabase.from('settings').select('value').eq('key', 'cierre_minutos_antes').single();
-  return Number(data?.value || 15);
+  return Number(data?.value || 1);
 }
 
 export async function GET(request: Request) {
@@ -43,12 +44,14 @@ export async function POST(request: Request) {
     const supabase = supabaseAdmin();
     const { data: match, error: matchError } = await supabase
       .from('matches')
-      .select('id, kickoff_at, status')
+      .select('id, kickoff_at, status, home_team, away_team')
       .eq('id', match_id)
       .single();
 
     if (matchError || !match) return NextResponse.json({ ok: false, error: 'Partido no encontrado.' }, { status: 404 });
-    if (match.status !== 'not_started') return NextResponse.json({ ok: false, error: 'Este partido ya no acepta pronósticos.' }, { status: 403 });
+    if (!isMatchPredictable(match)) {
+      return NextResponse.json({ ok: false, error: 'Este partido todavía no acepta pronósticos porque no están definidos los dos equipos o ya no está pendiente.' }, { status: 403 });
+    }
 
     const closingMinutes = await getClosingMinutes();
     const closesAt = new Date(new Date(match.kickoff_at).getTime() - closingMinutes * 60_000);
