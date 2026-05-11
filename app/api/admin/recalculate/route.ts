@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { isAdminRequest } from '@/lib/auth';
 import { calculatePoints } from '@/lib/scoring';
+import { updateBracketProgression } from '@/lib/progression';
 
 export async function POST(request: Request) {
   if (!isAdminRequest(request)) return NextResponse.json({ ok: false, error: 'No autorizado.' }, { status: 401 });
@@ -49,7 +50,9 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ ok: true, data: { recalculated: total } });
+    const progression = await updateBracketProgression(supabase);
+
+    return NextResponse.json({ ok: true, data: { recalculated: total, progression } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ ok: false, error: 'No se pudo recalcular la tabla.' }, { status: 500 });

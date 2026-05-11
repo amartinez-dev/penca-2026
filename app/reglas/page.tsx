@@ -19,7 +19,14 @@ export default function RulesPage() {
           </tbody>
         </table>
       </div>
-      <p className="footer-note">Los pronósticos se bloquean automáticamente antes del inicio de cada partido. El tiempo de cierre se configura desde la base de datos.</p>
+      <div className="section">
+        <h2>Cierre de pronósticos</h2>
+        <p>Los pronósticos se bloquean automáticamente 1 minuto antes del inicio de cada partido.</p>
+        <h2>Llaves eliminatorias</h2>
+        <p>Cuando el administrador carga resultados, la app recalcula la tabla y actualiza automáticamente los equipos clasificados en dieciseisavos, octavos, cuartos, semifinal, tercer puesto y final.</p>
+        <h2>Comparación</h2>
+        <p>En cada partido podés entrar a “Ver detalles y pronósticos de otros” para comparar qué puso cada participante.</p>
+      </div>
     </section>
   );
 }

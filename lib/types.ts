@@ -21,6 +21,12 @@ export type Match = {
   away_score: number | null;
   venue: string | null;
   city: string | null;
+  home_source: string | null;
+  away_source: string | null;
+  winner_team: string | null;
+  home_lineup: string | null;
+  away_lineup: string | null;
+  notes: string | null;
 };
 
 export type Prediction = {
@@ -30,6 +36,14 @@ export type Prediction = {
   pred_home: number;
   pred_away: number;
   created_at: string;
+  updated_at: string;
+};
+
+export type MatchPredictionRow = {
+  id: string;
+  name: string;
+  pred_home: number;
+  pred_away: number;
   updated_at: string;
 };
 

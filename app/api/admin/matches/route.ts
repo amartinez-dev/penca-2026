@@ -16,6 +16,9 @@ export async function POST(request: Request) {
       kickoff_at: new Date(body.kickoff_at).toISOString(),
       venue: body.venue ? String(body.venue) : null,
       city: body.city ? String(body.city) : null,
+      home_source: body.home_source ? String(body.home_source) : String(body.home_team || '').trim(),
+      away_source: body.away_source ? String(body.away_source) : String(body.away_team || '').trim(),
+      notes: body.notes ? String(body.notes) : null,
       status: 'not_started'
     };
 

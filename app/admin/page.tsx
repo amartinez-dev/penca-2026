@@ -64,7 +64,16 @@ export default function AdminPage() {
     const payload = Object.fromEntries(formData.entries());
     const res = await adminFetch('/api/admin/result', { method: 'POST', body: JSON.stringify(payload) });
     const json = await res.json();
-    if (!json.ok) setError(json.error); else setMessage('Resultado guardado y tabla recalculada.');
+    if (!json.ok) setError(json.error); else setMessage(`Resultado guardado, tabla recalculada y ${json.data?.progression?.updated || 0} partidos futuros actualizados.`);
+    await loadAll();
+  }
+
+  async function saveMatchInfo(formData: FormData) {
+    setMessage(null); setError(null);
+    const payload = Object.fromEntries(formData.entries());
+    const res = await adminFetch('/api/admin/match-info', { method: 'POST', body: JSON.stringify(payload) });
+    const json = await res.json();
+    if (!json.ok) setError(json.error); else setMessage('Información del partido guardada.');
     await loadAll();
   }
 
@@ -80,7 +89,7 @@ export default function AdminPage() {
     setMessage(null); setError(null);
     const res = await adminFetch('/api/admin/recalculate', { method: 'POST', body: JSON.stringify({}) });
     const json = await res.json();
-    if (!json.ok) setError(json.error); else setMessage(`Tabla recalculada: ${json.data.recalculated} puntajes.`);
+    if (!json.ok) setError(json.error); else setMessage(`Tabla recalculada: ${json.data.recalculated} puntajes. Llave actualizada: ${json.data?.progression?.updated || 0} partidos.`);
   }
 
   if (!savedPassword) {
@@ -132,10 +141,34 @@ export default function AdminPage() {
             <label className="label">Ciudad<input className="input" name="city" /></label>
             <button className="button warn" type="submit">Crear partido</button>
           </form>
-          <div className="table-wrap">
+          <div className="card flat">
+            <h2>Editar información</h2>
+            <p>Acá podés agregar estadio, ciudad, notas y alineaciones. Eso se ve en el detalle del partido.</p>
+          </div>
+          <div className="table-wrap" style={{ gridColumn: '1 / -1' }}>
             <table>
-              <thead><tr><th>Fecha</th><th>Partido</th><th>Estado</th></tr></thead>
-              <tbody>{matches.slice(0, 20).map(m => <tr key={m.id}><td>{new Date(m.kickoff_at).toLocaleString('es-UY')}</td><td>{m.home_team} vs {m.away_team}</td><td>{m.status}</td></tr>)}</tbody>
+              <thead><tr><th>Partido</th><th>Estadio / ciudad</th><th>Notas y alineaciones</th><th></th></tr></thead>
+              <tbody>{matches.map(m => (
+                <tr key={m.id}>
+                  <td>
+                    <strong>{m.tournament_match_no ? `#${m.tournament_match_no} · ` : ''}{m.home_team} vs {m.away_team}</strong><br />
+                    <span className="help">{new Date(m.kickoff_at).toLocaleString('es-UY')} · {m.stage}{m.group_name ? ` · ${m.group_name}` : ''}</span>
+                  </td>
+                  <td>
+                    <form id={`info-${m.id}`} action={saveMatchInfo} className="form">
+                      <input type="hidden" name="match_id" value={m.id} />
+                      <input className="input" name="venue" placeholder="Estadio" defaultValue={m.venue || ''} />
+                      <input className="input" name="city" placeholder="Ciudad" defaultValue={m.city || ''} />
+                    </form>
+                  </td>
+                  <td>
+                    <textarea className="input" name="notes" placeholder="Notas" defaultValue={m.notes || ''} form={`info-${m.id}`} rows={2} />
+                    <textarea className="input" name="home_lineup" placeholder={`Alineación ${m.home_team}`} defaultValue={m.home_lineup || ''} form={`info-${m.id}`} rows={2} />
+                    <textarea className="input" name="away_lineup" placeholder={`Alineación ${m.away_team}`} defaultValue={m.away_lineup || ''} form={`info-${m.id}`} rows={2} />
+                  </td>
+                  <td><button className="button secondary" form={`info-${m.id}`}>Guardar info</button></td>
+                </tr>
+              ))}</tbody>
             </table>
           </div>
         </div>
@@ -149,13 +182,18 @@ export default function AdminPage() {
               {matches.map(match => (
                 <tr key={match.id}>
                   <td>{new Date(match.kickoff_at).toLocaleString('es-UY')}</td>
-                  <td>{match.home_team} vs {match.away_team}<br /><span className="help">Actual: {match.home_score === null ? '-' : `${match.home_score} - ${match.away_score}`} · {match.status}</span></td>
+                  <td>{match.home_team} vs {match.away_team}<br /><span className="help">Actual: {match.home_score === null ? '-' : `${match.home_score} - ${match.away_score}`} · {match.status}{match.winner_team ? ` · avanza ${match.winner_team}` : ''}</span></td>
                   <td>
                     <form id={`result-${match.id}`} action={saveResult} className="score-inputs">
                       <input type="hidden" name="match_id" value={match.id} />
                       <input className="input" name="home_score" inputMode="numeric" required />
                       <span>-</span>
                       <input className="input" name="away_score" inputMode="numeric" required />
+                      <select className="select" name="winner_team" title="Ganador por penales si corresponde" style={{ gridColumn: '1 / 4' }}>
+                        <option value="">Ganador por penales si empatan</option>
+                        <option value={match.home_team}>{match.home_team}</option>
+                        <option value={match.away_team}>{match.away_team}</option>
+                      </select>
                     </form>
                   </td>
                   <td><button className="button secondary" form={`result-${match.id}`}>Guardar</button></td>
@@ -178,8 +216,8 @@ export default function AdminPage() {
       {tab === 'sync' && (
         <div className="grid two section">
           <div className="card flat">
-            <h2>API-Football</h2>
-            <p>Importa fixtures, estados y resultados usando las variables API_FOOTBALL_KEY, API_FOOTBALL_LEAGUE_ID y API_FOOTBALL_SEASON.</p>
+            <h2>Sincronización externa</h2>
+            <p>Opcional. La penca puede funcionar 100% manual. Si usás una fuente externa, este botón intenta sincronizar datos.</p>
             <button className="button warn" onClick={syncFootball}>Sincronizar ahora</button>
           </div>
           <div className="card flat">

@@ -7,6 +7,8 @@ type StoredParticipant = { id: string; name: string };
 
 type Drafts = Record<string, { pred_home: string; pred_away: string }>;
 
+const CLOSING_MINUTES = 1;
+
 function getStoredParticipant(): StoredParticipant | null {
   if (typeof window === 'undefined') return null;
   const raw = localStorage.getItem('pencaParticipant');
@@ -24,7 +26,11 @@ function statusLabel(status: string) {
 
 function canPredict(match: Match) {
   if (match.status !== 'not_started') return false;
-  return new Date(match.kickoff_at).getTime() > Date.now() + 15 * 60_000;
+  return new Date(match.kickoff_at).getTime() > Date.now() + CLOSING_MINUTES * 60_000;
+}
+
+function closesAt(match: Match) {
+  return new Date(new Date(match.kickoff_at).getTime() - CLOSING_MINUTES * 60_000);
 }
 
 export default function PlayPage() {
@@ -48,8 +54,8 @@ export default function PlayPage() {
     }
 
     const [matchesRes, predictionsRes] = await Promise.all([
-      fetch('/api/matches').then(r => r.json()),
-      fetch(`/api/predictions?participant_id=${stored.id}`).then(r => r.json())
+      fetch('/api/matches', { cache: 'no-store' }).then(r => r.json()),
+      fetch(`/api/predictions?participant_id=${stored.id}`, { cache: 'no-store' }).then(r => r.json())
     ]);
 
     if (!matchesRes.ok) setError(matchesRes.error);
@@ -72,7 +78,11 @@ export default function PlayPage() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const interval = setInterval(load, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const predictionMap = useMemo(() => new Map(predictions.map(p => [p.match_id, p])), [predictions]);
 
@@ -132,7 +142,7 @@ export default function PlayPage() {
     <section className="card">
       <div className="eyebrow">Hola, {participant.name}</div>
       <h1>Mis pronósticos</h1>
-      <p>Podés cargar todos de una o ir partido por partido. Cada partido se bloquea 15 minutos antes de empezar.</p>
+      <p>Podés cargar todos de una o ir partido por partido. Cada partido se bloquea automáticamente 1 minuto antes de empezar.</p>
 
       <div className="actions">
         <button className={`button ${filter === 'next' ? '' : 'secondary'}`} onClick={() => setFilter('next')}>Próximos</button>
@@ -151,6 +161,7 @@ export default function PlayPage() {
             <tr>
               <th>Fecha</th>
               <th>Partido</th>
+              <th>Info</th>
               <th>Estado</th>
               <th>Resultado</th>
               <th>Tu pronóstico</th>
@@ -164,7 +175,16 @@ export default function PlayPage() {
               return (
                 <tr key={match.id}>
                   <td>{new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                  <td><strong>{match.home_team}</strong> vs <strong>{match.away_team}</strong><br /><span className="help">{match.stage}{match.group_name ? ` · ${match.group_name}` : ''}</span></td>
+                  <td>
+                    <strong>{match.home_team}</strong> vs <strong>{match.away_team}</strong><br />
+                    <span className="help">{match.stage}{match.group_name ? ` · ${match.group_name}` : ''}</span><br />
+                    <a className="help" href={`/partidos/${match.id}`}>Ver detalles y pronósticos de otros</a>
+                  </td>
+                  <td>
+                    <span className="help">{match.venue || 'Estadio a confirmar'}</span><br />
+                    <span className="help">{match.city || ''}</span><br />
+                    <span className="help">Cierra: {closesAt(match).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}</span>
+                  </td>
                   <td><span className={`badge ${match.status === 'live' ? 'live' : locked ? 'closed' : 'ok'}`}>{statusLabel(match.status)}</span></td>
                   <td>{match.home_score === null ? '-' : `${match.home_score} - ${match.away_score}`}</td>
                   <td>
@@ -179,7 +199,7 @@ export default function PlayPage() {
                 </tr>
               );
             })}
-            {!visibleMatches.length && <tr><td colSpan={6}>No hay partidos para mostrar.</td></tr>}
+            {!visibleMatches.length && <tr><td colSpan={7}>No hay partidos para mostrar.</td></tr>}
           </tbody>
         </table>
       </div>
