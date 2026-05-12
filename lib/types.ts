@@ -56,6 +56,18 @@ export type LeaderboardRow = {
   jugados: number;
 };
 
+export type NotificationRow = {
+  id: string;
+  participant_id: string;
+  match_id: string;
+  points: number;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ApiResponse<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };

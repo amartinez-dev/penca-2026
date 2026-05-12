@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { isAdminRequest } from '@/lib/auth';
-import { calculatePoints } from '@/lib/scoring';
 import { updateBracketProgression } from '@/lib/progression';
+import { saveScoreAndNotification } from '@/lib/notifications';
 
 function isKnockoutStage(stage: string) {
   return !stage.toLowerCase().includes('grupo');
@@ -12,11 +12,11 @@ async function recalculateMatch(matchId: string) {
   const supabase = supabaseAdmin();
   const { data: match, error: matchError } = await supabase
     .from('matches')
-    .select('id, home_score, away_score, status')
+    .select('id, home_team, away_team, home_score, away_score, status')
     .eq('id', matchId)
     .single();
 
-  if (matchError || !match || match.home_score === null || match.away_score === null || match.status !== 'finished') return;
+  if (matchError || !match || match.home_score === null || match.away_score === null || match.status !== 'finished') return 0;
 
   const { data: predictions, error: predError } = await supabase
     .from('predictions')
@@ -25,26 +25,19 @@ async function recalculateMatch(matchId: string) {
 
   if (predError) throw predError;
 
+  let total = 0;
   for (const prediction of predictions || []) {
-    const result = calculatePoints({
-      pred_home: prediction.pred_home,
-      pred_away: prediction.pred_away,
+    await saveScoreAndNotification(supabase, {
+      id: match.id,
+      home_team: match.home_team,
+      away_team: match.away_team,
       home_score: match.home_score,
       away_score: match.away_score
-    });
-
-    const { error } = await supabase.from('scores').upsert({
-      participant_id: prediction.participant_id,
-      match_id: prediction.match_id,
-      points: result.points,
-      reason: result.reason,
-      exact: result.exact,
-      hit: result.hit,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'participant_id,match_id' });
-
-    if (error) throw error;
+    }, prediction);
+    total++;
   }
+
+  return total;
 }
 
 export async function POST(request: Request) {
@@ -87,10 +80,11 @@ export async function POST(request: Request) {
       .eq('id', matchId);
 
     if (error) throw error;
-    await recalculateMatch(matchId);
+
+    const recalculated = await recalculateMatch(matchId);
     const progression = await updateBracketProgression(supabase);
 
-    return NextResponse.json({ ok: true, data: { match_id: matchId, progression } });
+    return NextResponse.json({ ok: true, data: { match_id: matchId, recalculated, progression } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ ok: false, error: 'No se pudo guardar el resultado.' }, { status: 500 });

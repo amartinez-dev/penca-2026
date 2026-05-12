@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { isAdminRequest } from '@/lib/auth';
-import { calculatePoints } from '@/lib/scoring';
 import { updateBracketProgression } from '@/lib/progression';
+import { saveScoreAndNotification } from '@/lib/notifications';
 
 export async function POST(request: Request) {
   if (!isAdminRequest(request)) return NextResponse.json({ ok: false, error: 'No autorizado.' }, { status: 401 });
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const supabase = supabaseAdmin();
     const { data: matches, error: matchesError } = await supabase
       .from('matches')
-      .select('id, home_score, away_score')
+      .select('id, home_team, away_team, home_score, away_score')
       .eq('status', 'finished')
       .not('home_score', 'is', null)
       .not('away_score', 'is', null);
@@ -28,24 +28,13 @@ export async function POST(request: Request) {
       if (predError) throw predError;
 
       for (const prediction of predictions || []) {
-        const result = calculatePoints({
-          pred_home: prediction.pred_home,
-          pred_away: prediction.pred_away,
+        await saveScoreAndNotification(supabase, {
+          id: match.id,
+          home_team: match.home_team,
+          away_team: match.away_team,
           home_score: match.home_score,
           away_score: match.away_score
-        });
-
-        const { error } = await supabase.from('scores').upsert({
-          participant_id: prediction.participant_id,
-          match_id: prediction.match_id,
-          points: result.points,
-          reason: result.reason,
-          exact: result.exact,
-          hit: result.hit,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'participant_id,match_id' });
-
-        if (error) throw error;
+        }, prediction);
         total++;
       }
     }
@@ -55,6 +44,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, data: { recalculated: total, progression } });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ ok: false, error: 'No se pudo recalcular la tabla.' }, { status: 500 });
+    return NextResponse.json({ ok: false, error: 'No se pudo recalcular la tabla. Ejecutá primero el SQL de notificaciones si todavía no lo hiciste.' }, { status: 500 });
   }
 }

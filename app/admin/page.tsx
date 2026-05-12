@@ -92,6 +92,20 @@ export default function AdminPage() {
     if (!json.ok) setError(json.error); else setMessage(`Tabla recalculada: ${json.data.recalculated} puntajes. Llave actualizada: ${json.data?.progression?.updated || 0} partidos.`);
   }
 
+  async function deleteParticipant(participantId: string, name: string) {
+    const ok = window.confirm(`¿Seguro que querés quitar a ${name}? Se borrarán sus pronósticos, puntos y notificaciones.`);
+    if (!ok) return;
+
+    setMessage(null); setError(null);
+    const res = await adminFetch('/api/admin/participants', {
+      method: 'DELETE',
+      body: JSON.stringify({ participant_id: participantId })
+    });
+    const json = await res.json();
+    if (!json.ok) setError(json.error); else setMessage(`Participante quitado: ${name}.`);
+    await loadAll();
+  }
+
   if (!savedPassword) {
     return (
       <section className="card">
@@ -207,8 +221,17 @@ export default function AdminPage() {
       {tab === 'participantes' && (
         <div className="section table-wrap">
           <table>
-            <thead><tr><th>Nombre</th><th>Alta</th></tr></thead>
-            <tbody>{participants.map(p => <tr key={p.id}><td>{p.name}</td><td>{new Date(p.created_at).toLocaleString('es-UY')}</td></tr>)}</tbody>
+            <thead><tr><th>Nombre</th><th>Alta</th><th>Acción</th></tr></thead>
+            <tbody>
+              {participants.map(p => (
+                <tr key={p.id}>
+                  <td><strong>{p.name}</strong></td>
+                  <td>{new Date(p.created_at).toLocaleString('es-UY')}</td>
+                  <td><button className="button danger" onClick={() => deleteParticipant(p.id, p.name)}>Quitar</button></td>
+                </tr>
+              ))}
+              {!participants.length && <tr><td colSpan={3}>No hay participantes.</td></tr>}
+            </tbody>
           </table>
         </div>
       )}

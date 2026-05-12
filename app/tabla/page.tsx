@@ -3,11 +3,27 @@
 import { useEffect, useState } from 'react';
 import type { LeaderboardRow } from '@/lib/types';
 
+type StoredParticipant = { id: string; name: string };
+
+function getStoredParticipant(): StoredParticipant | null {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem('pencaParticipant');
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
 export default function TablePage() {
+  const [participant, setParticipant] = useState<StoredParticipant | null>(null);
+  const [checked, setChecked] = useState(false);
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
+    const stored = getStoredParticipant();
+    setParticipant(stored);
+    setChecked(true);
+    if (!stored) return;
+
     const res = await fetch('/api/leaderboard', { cache: 'no-store' });
     const json = await res.json();
     if (!json.ok) setError(json.error);
@@ -20,13 +36,24 @@ export default function TablePage() {
     return () => clearInterval(interval);
   }, []);
 
+  if (checked && !participant) {
+    return (
+      <section className="card">
+        <div className="eyebrow">Tabla bloqueada</div>
+        <h1>Entrá para ver la tabla</h1>
+        <p>Primero registrate o ingresá con tu nombre y PIN.</p>
+        <a className="button warn" href="/">Ir al inicio</a>
+      </section>
+    );
+  }
+
   const leader = rows[0];
 
   return (
     <section className="card">
       <div className="eyebrow">Ranking general</div>
       <h1>Tabla de posiciones</h1>
-      <p>La tabla se actualiza cuando se cargan resultados. Los exactos y aciertos sirven para comparar rendimiento además de puntos.</p>
+      <p>Regla actual: marcador exacto 5 puntos, ganador o empate 2 puntos, sin bonus por diferencia de goles.</p>
 
       <div className="grid three section">
         <div className="stat"><span>Participantes</span><strong>{rows.length}</strong></div>

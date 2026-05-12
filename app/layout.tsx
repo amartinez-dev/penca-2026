@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Archivo_Black, Noto_Sans } from 'next/font/google';
 import './globals.css';
 import { Nav } from '@/components/Nav';
+import { Notifications } from '@/components/Notifications';
 
 const heading = Archivo_Black({
   subsets: ['latin'],
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${heading.variable} ${bodyFont.variable}`}>
         <Nav />
         <main className="page-shell">{children}</main>
+        <Notifications />
       </body>
     </html>
   );

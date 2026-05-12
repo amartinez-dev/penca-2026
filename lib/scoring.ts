@@ -19,17 +19,9 @@ export function calculatePoints(input: ScoreInput) {
 
   const predictedOutcome = outcome(input.pred_home, input.pred_away);
   const actualOutcome = outcome(input.home_score, input.away_score);
-  const predictedDiff = input.pred_home - input.pred_away;
-  const actualDiff = input.home_score - input.away_score;
 
   if (predictedOutcome === actualOutcome) {
-    const diffBonus = predictedDiff === actualDiff ? 1 : 0;
-    return {
-      points: 3 + diffBonus,
-      reason: diffBonus ? 'Acierto de resultado y diferencia' : 'Acierto de resultado',
-      exact: false,
-      hit: true
-    };
+    return { points: 2, reason: 'Acierto de ganador o empate', exact: false, hit: true };
   }
 
   return { points: 0, reason: 'Sin acierto', exact: false, hit: false };
