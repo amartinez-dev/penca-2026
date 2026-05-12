@@ -622,3 +622,281 @@ tr:last-child td {
     min-width: 640px;
   }
 }
+
+
+/* =========================================================
+   Ajuste móvil fino: evita desbordes, mantiene estilo plano
+   ========================================================= */
+h1,
+h2,
+h3,
+.brand-text,
+.team-name,
+.score-pill,
+.badge {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.card,
+.match-card,
+.table-wrap,
+.intro-panel,
+.side-panel {
+  max-width: 100%;
+}
+
+/* Tablets */
+@media (max-width: 900px) {
+  .page-shell {
+    width: min(100% - 1rem, 760px);
+  }
+
+  .card {
+    overflow: hidden;
+  }
+
+  h1 {
+    font-size: clamp(2.6rem, 10vw, 4.25rem);
+    line-height: .94;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 8vw, 3.25rem);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 560px;
+  }
+}
+
+/* Celulares */
+@media (max-width: 640px) {
+  :root {
+    --font-size: 15px;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .page-shell {
+    width: min(100% - 1rem, 430px);
+    padding-top: .75rem;
+  }
+
+  .topbar {
+    position: static;
+    padding: .75rem;
+    gap: .75rem;
+  }
+
+  .brand-text {
+    font-size: clamp(1.25rem, 6vw, 1.55rem);
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+
+  .main-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .45rem;
+  }
+
+  .main-nav a,
+  .main-nav button {
+    min-height: 40px;
+    padding: .6rem .65rem;
+    font-size: .9rem;
+  }
+
+  .intro-panel,
+  .side-panel,
+  .card {
+    padding: .85rem;
+  }
+
+  h1 {
+    font-size: clamp(2.15rem, 10.8vw, 3rem);
+    letter-spacing: -0.045em;
+    line-height: .98;
+  }
+
+  h2 {
+    font-size: clamp(1.75rem, 8.5vw, 2.55rem);
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  h3 {
+    font-size: clamp(1.15rem, 5.4vw, 1.55rem);
+    letter-spacing: -0.03em;
+  }
+
+  p,
+  .help {
+    font-size: .92rem;
+    line-height: 1.45;
+  }
+
+  .kicker,
+  .eyebrow {
+    font-size: .72rem;
+    letter-spacing: .11em;
+  }
+
+  .home-tabs,
+  .home-actions,
+  .actions {
+    gap: .45rem;
+  }
+
+  .home-tabs button,
+  .home-tabs a,
+  .button {
+    min-height: 44px;
+    padding: .68rem .75rem;
+    font-size: .92rem;
+  }
+
+  .stat {
+    padding: .85rem;
+  }
+
+  .stat strong {
+    font-size: clamp(1.85rem, 12vw, 2.8rem);
+  }
+
+  .match-card-list {
+    gap: .65rem;
+  }
+
+  .match-card {
+    padding: .8rem;
+    gap: .65rem;
+  }
+
+  .team-badge {
+    gap: .48rem;
+  }
+
+  .team-shield {
+    width: 34px;
+    height: 34px;
+    border-width: 1.5px;
+  }
+
+  .team-badge-lg .team-shield {
+    width: 46px;
+    height: 46px;
+  }
+
+  .team-name {
+    font-size: .95rem;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.15;
+  }
+
+  .match-vs {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: .4rem;
+    padding: .6rem 0;
+    text-align: center;
+    font-size: 1.05rem;
+  }
+
+  .match-vs .section {
+    margin-top: 0 !important;
+  }
+
+  .match-vs .help {
+    margin: 0 !important;
+    text-align: center;
+    font-family: var(--font-body), Arial, Helvetica, sans-serif;
+    font-size: .84rem;
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+
+  .badge,
+  .score-pill {
+    min-width: auto;
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.05;
+    padding: .32rem .55rem;
+    font-size: .82rem;
+    text-align: center;
+  }
+
+  .score-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    width: 100%;
+    gap: .45rem;
+  }
+
+  .score-inputs input {
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  .input,
+  .select,
+  textarea.input {
+    min-height: 44px;
+    padding: .7rem .75rem;
+  }
+
+  .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 520px;
+  }
+
+  th,
+  td {
+    padding: .68rem;
+    font-size: .88rem;
+  }
+
+  .score-pill {
+    min-height: 30px;
+  }
+}
+
+/* iPhone angosto */
+@media (max-width: 420px) {
+  .page-shell {
+    width: calc(100% - .75rem);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 10.2vw, 2.65rem);
+  }
+
+  .card {
+    padding: .75rem;
+  }
+
+  table {
+    min-width: 500px;
+  }
+}
