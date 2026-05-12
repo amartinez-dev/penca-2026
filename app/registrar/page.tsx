@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 
 type StoredParticipant = { id: string; name: string };
@@ -40,7 +41,7 @@ export default function RegisterPage() {
       <div className="login-card card">
         <div className="eyebrow">Registro</div>
         <h1>Registrar</h1>
-        <p>Creá tu participante. Al terminar entrás automáticamente a jugar.</p>
+        <p>Creá tu participante. Al terminar entrás automáticamente.</p>
 
         <form action={register} className="form section">
           <label className="label">Nombre
@@ -56,6 +57,8 @@ export default function RegisterPage() {
             {loading ? 'Creando...' : 'Crear y entrar'}
           </button>
         </form>
+
+        <Link href="/" className="button secondary section">Volver al login</Link>
       </div>
     </section>
   );

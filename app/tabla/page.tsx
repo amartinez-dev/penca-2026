@@ -39,33 +39,34 @@ export default function TablePage() {
   if (checked && !participant) {
     return (
       <section className="card">
-        <div className="eyebrow">Tabla bloqueada</div>
+        <div className="eyebrow">Tabla</div>
         <h1>Entrá para ver la tabla</h1>
-        <p>Primero registrate o ingresá con tu nombre y PIN.</p>
-        <a className="button warn" href="/">Ir al inicio</a>
+        <p>Primero ingresá con tu nombre y PIN.</p>
+        <a className="button primary section" href="/">Ir al login</a>
       </section>
     );
   }
 
-  const leader = rows[0];
-
   return (
-    <section className="card">
+    <section className="card ranking-page">
       <div className="eyebrow">Ranking general</div>
       <h1>Tabla de posiciones</h1>
-      <p>Regla actual: marcador exacto 5 puntos, ganador o empate 2 puntos, sin bonus por diferencia de goles.</p>
-
-      <div className="grid three section">
-        <div className="stat"><span>Participantes</span><strong>{rows.length}</strong></div>
-        <div className="stat"><span>Puntero/a</span><strong style={{ fontSize: '1.35rem' }}>{leader?.name || '-'}</strong></div>
-        <div className="stat"><span>Puntos arriba</span><strong>{leader?.points || 0}</strong></div>
-      </div>
+      <p>Regla actual: exacto 5 puntos, ganador o empate 2 puntos.</p>
 
       {error && <div className="alert error section">{error}</div>}
 
-      <div className="table-wrap section">
+      <div className="table-wrap section compact-table">
         <table>
-          <thead><tr><th>#</th><th>Participante</th><th>Puntos</th><th>Exactos</th><th>Aciertos</th><th>Jugados</th></tr></thead>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Participante</th>
+              <th>Puntos</th>
+              <th>Exactos</th>
+              <th>Aciertos</th>
+              <th>Jugados</th>
+            </tr>
+          </thead>
           <tbody>
             {rows.map((row, index) => (
               <tr key={row.participant_id}>

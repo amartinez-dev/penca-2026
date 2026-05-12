@@ -12,13 +12,23 @@ function getStoredParticipant(): StoredParticipant | null {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
+function hasAdminSession() {
+  if (typeof window === 'undefined') return false;
+  return Boolean(localStorage.getItem('pencaAdminPassword'));
+}
+
 export function Nav() {
   const [participant, setParticipant] = useState<StoredParticipant | null>(null);
+  const [admin, setAdmin] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setParticipant(getStoredParticipant());
-    const timer = setInterval(() => setParticipant(getStoredParticipant()), 1000);
+    const refresh = () => {
+      setParticipant(getStoredParticipant());
+      setAdmin(hasAdminSession());
+    };
+    refresh();
+    const timer = setInterval(refresh, 800);
     return () => clearInterval(timer);
   }, []);
 
@@ -26,11 +36,18 @@ export function Nav() {
     setOpen(false);
   }
 
-  function logout() {
+  function logoutParticipant() {
     localStorage.removeItem('pencaParticipant');
     setParticipant(null);
     setOpen(false);
     window.location.href = '/';
+  }
+
+  function logoutAdmin() {
+    localStorage.removeItem('pencaAdminPassword');
+    setAdmin(false);
+    setOpen(false);
+    window.location.href = '/admin';
   }
 
   return (
@@ -54,12 +71,18 @@ export function Nav() {
       {open && <button className="menu-backdrop" aria-label="Cerrar menú" onClick={closeMenu} />}
 
       <nav className={`main-nav drawer-nav ${open ? 'open' : ''}`}>
-        {!participant && <Link href="/registrar" onClick={closeMenu}>Registrar</Link>}
-        {!participant && <Link href="/admin" onClick={closeMenu}>Admin</Link>}
+        {!participant && !admin && <Link href="/registrar" onClick={closeMenu}>Registrar</Link>}
+        {!participant && !admin && <Link href="/como-jugar" onClick={closeMenu}>Cómo jugar</Link>}
+        {!participant && !admin && <Link href="/admin" onClick={closeMenu}>Admin</Link>}
 
         {participant && <Link href="/jugar" onClick={closeMenu}>Jugar</Link>}
         {participant && <Link href="/tabla" onClick={closeMenu}>Tabla</Link>}
-        {participant && <button type="button" onClick={logout}>Salir</button>}
+        {participant && <Link href="/como-jugar" onClick={closeMenu}>Cómo jugar</Link>}
+        {participant && <button type="button" onClick={logoutParticipant}>Salir</button>}
+
+        {admin && !participant && <Link href="/admin" onClick={closeMenu}>Admin</Link>}
+        {admin && !participant && <Link href="/como-jugar" onClick={closeMenu}>Cómo jugar</Link>}
+        {admin && !participant && <button type="button" onClick={logoutAdmin}>Salir admin</button>}
       </nav>
     </header>
   );

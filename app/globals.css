@@ -1337,3 +1337,308 @@ h3 {
     padding-right: .25rem !important;
   }
 }
+
+/* =========================================================
+   Revisión: tabla simple, jugar ordenado, admin mobile
+   ========================================================= */
+.ranking-page h1,
+.play-page-card h1,
+.admin-page h1,
+.how-page h1 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.compact-table table {
+  min-width: 520px;
+}
+
+.compact-filter {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin-top: .75rem;
+}
+
+.mini-button {
+  width: auto !important;
+  min-height: 34px !important;
+  padding: .42rem .62rem !important;
+  font-size: .82rem !important;
+  border-width: 1.5px !important;
+}
+
+.compact-save {
+  width: auto !important;
+  min-height: 36px !important;
+  padding: .48rem .7rem !important;
+  font-size: .84rem !important;
+  margin-top: .55rem;
+}
+
+.clean-match-card {
+  display: block;
+}
+
+.match-meta {
+  display: grid;
+  gap: .22rem;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+.match-meta strong {
+  color: var(--ink);
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .7rem;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  padding: .65rem 0;
+  margin-top: .8rem;
+}
+
+.close-time {
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: .82rem;
+}
+
+.prediction-editor {
+  display: grid;
+  gap: .65rem;
+}
+
+.team-score-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: .55rem;
+  border: 2px solid var(--ink);
+  padding: .65rem;
+  font-weight: 900;
+}
+
+.team-side {
+  min-width: 0;
+}
+
+.score-label {
+  color: var(--muted);
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.prediction-input {
+  width: 64px;
+  min-width: 64px;
+  text-align: center;
+}
+
+.versus-divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: .8rem;
+  font-family: var(--font-heading), Arial Black, Impact, sans-serif;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+}
+
+.versus-divider::before,
+.versus-divider::after {
+  content: "";
+  border-top: 2px solid var(--ink);
+}
+
+.saved-prediction {
+  border: 2px solid var(--ink);
+  padding: .75rem;
+  margin-top: .75rem;
+  font-weight: 900;
+  background: var(--paper-2);
+}
+
+.match-actions {
+  display: grid;
+  gap: .55rem;
+  margin-top: .75rem;
+}
+
+.simple-home {
+  display: grid;
+  min-height: calc(100dvh - 6rem);
+  align-items: start;
+}
+
+.login-card,
+.admin-login-card {
+  width: min(100%, 560px);
+  margin: 0 auto;
+}
+
+.how-steps {
+  display: grid;
+  gap: .75rem;
+}
+
+.how-steps article {
+  border: 2px solid var(--ink);
+  padding: 1rem;
+  background: var(--panel);
+}
+
+.how-steps article strong {
+  display: inline-grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 2px solid var(--ink);
+  margin-bottom: .75rem;
+  font-family: var(--font-heading), Arial Black, Impact, sans-serif;
+}
+
+.admin-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.admin-menu-button {
+  flex: 0 0 auto;
+}
+
+.admin-menu-panel {
+  display: grid;
+  gap: .45rem;
+  border: 2px solid var(--ink);
+  padding: .65rem;
+  margin-top: .75rem;
+  background: var(--paper-2);
+}
+
+.admin-menu-panel button {
+  appearance: none;
+  border: 2px solid var(--ink);
+  background: var(--panel);
+  padding: .75rem;
+  font-weight: 900;
+  text-align: left;
+}
+
+.admin-menu-panel button.active {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.admin-summary {
+  display: grid;
+  gap: .75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-match-list,
+.admin-result-list {
+  display: grid;
+  gap: .8rem;
+}
+
+.admin-form,
+.admin-edit-match,
+.result-card {
+  padding: 1rem;
+}
+
+.result-card {
+  display: grid;
+  gap: .4rem;
+}
+
+.section-title {
+  font-family: var(--font-heading), Arial Black, Impact, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
+  font-size: clamp(1.25rem, 5vw, 2rem);
+  line-height: 1;
+}
+
+@media (max-width: 760px) {
+  .ranking-page h1,
+  .play-page-card h1,
+  .admin-page h1,
+  .how-page h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    letter-spacing: -0.04em;
+    line-height: .98;
+  }
+
+  .ranking-page .score-pill {
+    min-width: 34px;
+    padding: .25rem .45rem;
+  }
+
+  .compact-filter {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mini-button {
+    min-height: 34px !important;
+    padding: .38rem .25rem !important;
+    font-size: .74rem !important;
+  }
+
+  .compact-save {
+    width: 100% !important;
+  }
+
+  .clean-match-card {
+    padding: .8rem;
+  }
+
+  .status-row {
+    display: grid;
+    gap: .45rem;
+    justify-items: start;
+  }
+
+  .team-score-line {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .score-label {
+    display: none;
+  }
+
+  .prediction-input {
+    width: 54px;
+    min-width: 54px;
+    padding-left: .3rem;
+    padding-right: .3rem;
+  }
+
+  .admin-summary,
+  .grid.two,
+  .grid.three {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-page .score-inputs {
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .admin-page table {
+    min-width: 520px;
+  }
+
+  .how-steps article {
+    padding: .85rem;
+  }
+}
