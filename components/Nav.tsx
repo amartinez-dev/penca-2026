@@ -17,9 +17,8 @@ export function Nav() {
 
   useEffect(() => {
     setParticipant(getStoredParticipant());
-    const onStorage = () => setParticipant(getStoredParticipant());
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    const timer = setInterval(() => setParticipant(getStoredParticipant()), 1500);
+    return () => clearInterval(timer);
   }, []);
 
   function logout() {
@@ -30,19 +29,16 @@ export function Nav() {
 
   return (
     <header className="topbar">
-      <Link className="brand" href="/">
-        <span className="brand-mark"><img src="/salados-2026-logo.svg" alt="Penca Salados 2026" /></span>
-        <span>
-          <strong>Penca Salados 2026</strong>
-          <small>{participant ? `Jugando: ${participant.name}` : 'Entrar · Registrarse · Admin'}</small>
-        </span>
+      <Link className="brand-text" href="/" aria-label="Inicio">
+        Penca Salada 2026
       </Link>
-      <nav>
+
+      <nav className="main-nav">
         <Link href="/">Inicio</Link>
         {participant && <Link href="/jugar">Jugar</Link>}
         {participant && <Link href="/tabla">Tabla</Link>}
         <Link href="/admin">Admin</Link>
-        {participant && <button className="button secondary" style={{ minHeight: 'auto', padding: '.62rem .9rem' }} onClick={logout}>Salir</button>}
+        {participant && <button type="button" onClick={logout}>Salir</button>}
       </nav>
     </header>
   );

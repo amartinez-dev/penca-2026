@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Archivo_Black, Noto_Sans } from 'next/font/google';
 import './globals.css';
 import { Nav } from '@/components/Nav';
-import { Notifications } from '@/components/Notifications';
 
 const heading = Archivo_Black({
   subsets: ['latin'],
@@ -16,9 +15,9 @@ const bodyFont = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Penca Salados 2026',
-  description: 'Penca del Mundial 2026 para Escuela de Música Salados',
-  applicationName: 'Penca Salados 2026'
+  title: 'Penca Salada 2026',
+  description: 'Penca del Mundial 2026',
+  applicationName: 'Penca Salada 2026'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +26,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${heading.variable} ${bodyFont.variable}`}>
         <Nav />
         <main className="page-shell">{children}</main>
-        <Notifications />
       </body>
     </html>
   );

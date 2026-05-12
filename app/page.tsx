@@ -32,8 +32,8 @@ export default function HomePage() {
     setLoading(true);
     setMessage(null);
     setError(null);
-    const payload = Object.fromEntries(formData.entries());
 
+    const payload = Object.fromEntries(formData.entries());
     const res = await fetch(`/api/auth/${mode}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -50,7 +50,6 @@ export default function HomePage() {
 
     saveParticipant(json.data.participant);
     setParticipant(json.data.participant);
-    setMessage(mode === 'register' ? 'Registro completo. Entraste automáticamente.' : 'Entrada correcta.');
     window.location.href = '/jugar';
   }
 
@@ -62,19 +61,25 @@ export default function HomePage() {
 
   if (participant) {
     return (
-      <section className="card hero-card hero-card-pro">
-        <div className="hero-orb hero-orb-a" />
-        <div className="hero-orb hero-orb-b" />
-        <div className="hero-gridline" />
-        <div>
-          <img className="hero-logo" src="/salados-2026-logo.svg" alt="Penca Salados 2026" />
-          <div className="eyebrow section">Ya estás dentro</div>
+      <section className="start-grid">
+        <div className="intro-panel">
+          <p className="kicker">Participante</p>
           <h1>Hola, {participant.name}</h1>
-          <p>Ya podés jugar, mirar la tabla y comparar pronósticos entrando al detalle de cada partido.</p>
-          <div className="actions">
-            <Link href="/jugar" className="button warn">Jugar</Link>
-            <Link href="/tabla" className="button secondary">Tabla de posiciones</Link>
-            <button className="button secondary" onClick={logout}>Cerrar sesión</button>
+          <p className="lead">Ya estás dentro de la penca. Desde acá podés cargar pronósticos, mirar la tabla y comparar lo que jugaron los demás en cada partido.</p>
+
+          <div className="home-actions">
+            <Link className="button primary" href="/jugar">Jugar</Link>
+            <Link className="button" href="/tabla">Tabla</Link>
+            <button className="button" type="button" onClick={logout}>Salir</button>
+          </div>
+        </div>
+
+        <div className="side-panel">
+          <h2>Regla simple</h2>
+          <div className="rule-list">
+            <div><strong>5</strong><span>Marcador exacto</span></div>
+            <div><strong>2</strong><span>Ganador o empate</span></div>
+            <div><strong>0</strong><span>Sin acierto</span></div>
           </div>
         </div>
       </section>
@@ -82,50 +87,40 @@ export default function HomePage() {
   }
 
   return (
-    <div className="hero hero-home">
-      <section className="card hero-card hero-card-pro">
-        <div className="hero-orb hero-orb-a" />
-        <div className="hero-orb hero-orb-b" />
-        <div className="hero-gridline" />
-        <div>
-          <img className="hero-logo" src="/salados-2026-logo.svg" alt="Penca Salados 2026" />
-          <div className="eyebrow section">Inicio</div>
-          <h1>Entrar, registrarse o administrar.</h1>
-          <p>La penca se habilita al entrar con nombre y PIN. Después aparecen Jugar, Tabla y los detalles por partido.</p>
-        </div>
-        <div className="actions">
-          <button className={`button ${mode === 'login' ? 'warn' : 'secondary'}`} onClick={() => setMode('login')}>Entrar</button>
-          <button className={`button ${mode === 'register' ? 'warn' : 'secondary'}`} onClick={() => setMode('register')}>Registrarme</button>
-          <Link href="/admin" className="button secondary">Admin</Link>
-        </div>
-      </section>
+    <section className="start-grid">
+      <div className="intro-panel">
+        <p className="kicker">Mundial 2026</p>
+        <h1>Penca Salada 2026</h1>
+        <p className="lead">Entrá, registrate o accedé al panel admin. Una vez adentro vas a poder jugar, mirar la tabla y comparar pronósticos por partido.</p>
 
-      <section className="card auth-panel">
-        <div className="eyebrow">{mode === 'login' ? 'Login participante' : 'Registro participante'}</div>
-        <h2>{mode === 'login' ? 'Entrá con tu nombre y PIN' : 'Crear cuenta'}</h2>
-        <p>{mode === 'login' ? 'Usá el mismo nombre y PIN con el que te registraste.' : 'Al registrarte quedás logueado automáticamente y vas directo a Jugar.'}</p>
-
-        <div className="mode-switch section">
-          <button className={`segmented ${mode === 'login' ? 'active' : ''}`} onClick={() => setMode('login')}>Entrar</button>
-          <button className={`segmented ${mode === 'register' ? 'active' : ''}`} onClick={() => setMode('register')}>Registrarme</button>
+        <div className="home-tabs" role="tablist" aria-label="Acceso">
+          <button className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')} type="button">Entrar</button>
+          <button className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')} type="button">Registrarme</button>
+          <Link href="/admin">Admin</Link>
         </div>
+      </div>
+
+      <div className="side-panel">
+        <p className="kicker">{mode === 'login' ? 'Login' : 'Registro'}</p>
+        <h2>{mode === 'login' ? 'Entrar a jugar' : 'Crear participante'}</h2>
+        <p>{mode === 'login' ? 'Usá tu nombre y PIN.' : 'Al registrarte entrás automáticamente.'}</p>
 
         <form action={submit} className="form section">
           <label className="label">Nombre
             <input className="input" name="name" placeholder="Tu nombre" required />
-            <span className="help">Si hay otro igual, agregá apellido o apodo.</span>
           </label>
           <label className="label">PIN
             <input className="input" name="pin" type="password" inputMode="numeric" placeholder="4 a 8 números" required />
-            <span className="help">Guardalo para poder volver a entrar.</span>
           </label>
+
           {message && <div className="alert success">{message}</div>}
           {error && <div className="alert error">{error}</div>}
-          <button disabled={loading} className="button warn" type="submit">
+
+          <button disabled={loading} className="button primary" type="submit">
             {loading ? 'Guardando...' : mode === 'register' ? 'Crear y entrar' : 'Entrar'}
           </button>
         </form>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }
