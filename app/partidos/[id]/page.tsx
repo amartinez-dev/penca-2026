@@ -21,21 +21,9 @@ function getStoredParticipant(): StoredParticipant | null {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
-function statusLabel(status: string) {
-  if (status === 'finished') return 'Finalizado';
-  if (status === 'live') return 'En vivo';
-  if (status === 'not_started') return 'Pendiente';
-  if (status === 'postponed') return 'Postergado';
-  return status;
-}
-
 function canPredict(match: Match) {
   if (!isMatchPredictable(match)) return false;
   return new Date(match.kickoff_at).getTime() > Date.now() + CLOSING_MINUTES * 60_000;
-}
-
-function closesAt(match: Match) {
-  return new Date(new Date(match.kickoff_at).getTime() - CLOSING_MINUTES * 60_000);
 }
 
 export default function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -81,14 +69,6 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
     return () => clearInterval(interval);
   }, [id]);
 
-  const summary = useMemo(() => {
-    return {
-      home: predictions.filter(row => row.pred_home > row.pred_away).length,
-      draw: predictions.filter(row => row.pred_home === row.pred_away).length,
-      away: predictions.filter(row => row.pred_away > row.pred_home).length
-    };
-  }, [predictions]);
-
   const otherPredictions = useMemo(() => {
     if (!participant) return predictions;
     return predictions.filter(row => row.participant_id !== participant.id);
@@ -127,36 +107,18 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const locked = !canPredict(match);
 
   return (
-    <section className="card match-detail-page">
-      <div className="eyebrow">Detalle del partido</div>
-      <h1>{match.home_team} vs {match.away_team}</h1>
-
-      <div className="detail-scoreboard section">
-        <div className="detail-team"><TeamBadge team={match.home_team} size="lg" /></div>
-        <div className="detail-center">
-          <span className="badge">{statusLabel(match.status)}</span>
-          <strong>{match.home_score === null ? 'VS' : `${match.home_score} - ${match.away_score}`}</strong>
-          <small>Cierra {closesAt(match).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}</small>
-        </div>
-        <div className="detail-team"><TeamBadge team={match.away_team} size="lg" /></div>
-      </div>
-
-      <p className="section">
-        {new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'full', timeStyle: 'short' })} · {match.stage}{match.group_name ? ` · ${match.group_name}` : ''}
-      </p>
-      {!resolved && <div className="alert section">Este partido todavía no acepta pronósticos porque falta definir al menos una selección.</div>}
-
+    <section className="match-detail-clean">
       <div className="card flat section my-prediction-card">
         <div className="section-title">Mi pronóstico</div>
-        {!participant && (
-          <div className="alert section">Entrá desde el inicio para cargar tu pronóstico.</div>
-        )}
+
+        {!resolved && <div className="alert section">Este partido todavía no acepta pronósticos porque falta definir al menos una selección.</div>}
+        {!participant && <div className="alert section">Entrá desde el inicio para cargar tu pronóstico.</div>}
+
         {participant && (
           <>
-            <div className="prediction-editor compact-editor section">
-              <label className="team-score-line">
+            <div className="prediction-editor section">
+              <label className="team-score-line team-score-main">
                 <span className="team-side"><TeamBadge team={match.home_team} /></span>
-                <span className="score-label">Goles</span>
                 <input
                   className="input prediction-input"
                   inputMode="numeric"
@@ -166,10 +128,11 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                   onChange={e => setDraft(prev => ({ ...prev, pred_home: e.target.value }))}
                 />
               </label>
+
               <div className="versus-divider">VS</div>
-              <label className="team-score-line">
+
+              <label className="team-score-line team-score-main">
                 <span className="team-side"><TeamBadge team={match.away_team} /></span>
-                <span className="score-label">Goles</span>
                 <input
                   className="input prediction-input"
                   inputMode="numeric"
@@ -180,56 +143,61 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                 />
               </label>
             </div>
+
             {myPrediction && (
-              <div className="saved-prediction section">
+              <div className="saved-prediction">
                 Guardado: {match.home_team} {myPrediction.pred_home} - {myPrediction.pred_away} {match.away_team}
               </div>
             )}
+
             {message && <div className="alert success section">{message}</div>}
-            {locked && <div className="locked-note">Pronóstico cerrado</div>}
+            {locked && <div className="closed-small section">Pronóstico cerrado</div>}
             <button className="button primary section" disabled={locked} onClick={savePrediction}>Guardar pronóstico</button>
           </>
         )}
       </div>
 
       <div className="card flat section">
-        <div className="section-title">Pronósticos de otros jugadores</div>
-        <div className="prediction-summary compact-summary">
-          <div><strong>{summary.home}</strong><span>{match.home_team}</span></div>
-          <div><strong>{summary.draw}</strong><span>Empate</span></div>
-          <div><strong>{summary.away}</strong><span>{match.away_team}</span></div>
-        </div>
-
-        <div className="section table-wrap">
+        <div className="section-title">Pronósticos de otros usuarios</div>
+        <div className="section table-wrap compact-table">
           <table>
-            <thead><tr><th>Participante</th><th>Pronóstico</th><th>Actualizado</th></tr></thead>
+            <thead><tr><th>Participante</th><th>Pronóstico</th></tr></thead>
             <tbody>
               {otherPredictions.map(row => (
                 <tr key={row.id}>
                   <td>{row.name}</td>
                   <td><strong>{match.home_team} {row.pred_home} - {row.pred_away} {match.away_team}</strong></td>
-                  <td>{new Date(row.updated_at).toLocaleString('es-UY')}</td>
                 </tr>
               ))}
-              {!otherPredictions.length && <tr><td colSpan={3}>Todavía no hay pronósticos de otros participantes para este partido.</td></tr>}
+              {!otherPredictions.length && <tr><td colSpan={2}>Todavía no hay pronósticos de otros participantes.</td></tr>}
             </tbody>
           </table>
         </div>
       </div>
 
-      <div className="grid two section detail-info-grid">
-        <div className="card flat">
-          <div className="section-title">Información</div>
+      <div className="card flat section">
+        <div className="section-title">Información del partido</div>
+        <div className="info-list section">
+          <p><strong>Partido:</strong> {match.home_team} vs {match.away_team}</p>
+          <p><strong>Fecha:</strong> {new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'full', timeStyle: 'short' })}</p>
+          <p><strong>Fase:</strong> {match.stage}{match.group_name ? ` · ${match.group_name}` : ''}</p>
           <p><strong>Estadio:</strong> {match.venue || 'A confirmar'}</p>
           <p><strong>Ciudad:</strong> {match.city || 'A confirmar'}</p>
-          <p><strong>Casillero original:</strong> {match.home_source || match.home_team} vs {match.away_source || match.away_team}</p>
-          <p>{match.notes || 'Sin notas adicionales por ahora.'}</p>
+          {match.notes && <p><strong>Notas:</strong> {match.notes}</p>}
         </div>
+      </div>
 
-        <div className="card flat">
-          <div className="section-title">Alineaciones</div>
-          <p><strong>{match.home_team}:</strong> {match.home_lineup || 'Todavía no cargada.'}</p>
-          <p><strong>{match.away_team}:</strong> {match.away_lineup || 'Todavía no cargada.'}</p>
+      <div className="card flat section">
+        <div className="section-title">Alineación de los equipos</div>
+        <div className="lineups-clean section">
+          <div>
+            <TeamBadge team={match.home_team} />
+            <p>{match.home_lineup || 'Todavía no cargada.'}</p>
+          </div>
+          <div>
+            <TeamBadge team={match.away_team} />
+            <p>{match.away_lineup || 'Todavía no cargada.'}</p>
+          </div>
         </div>
       </div>
     </section>
