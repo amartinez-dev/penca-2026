@@ -9,20 +9,13 @@ type StoredParticipant = { id: string; name: string };
 type Drafts = Record<string, { pred_home: string; pred_away: string }>;
 
 const CLOSING_MINUTES = 1;
+const COUNTDOWN_WINDOW_MS = 2 * 60_000;
 
 function getStoredParticipant(): StoredParticipant | null {
   if (typeof window === 'undefined') return null;
   const raw = localStorage.getItem('pencaParticipant');
   if (!raw) return null;
   try { return JSON.parse(raw); } catch { return null; }
-}
-
-function statusLabel(status: string) {
-  if (status === 'finished') return 'Finalizado';
-  if (status === 'live') return 'En vivo';
-  if (status === 'not_started') return 'Pendiente';
-  if (status === 'postponed') return 'Postergado';
-  return status;
 }
 
 function canPredict(match: Match) {
@@ -34,6 +27,14 @@ function closesAt(match: Match) {
   return new Date(new Date(match.kickoff_at).getTime() - CLOSING_MINUTES * 60_000);
 }
 
+function formatCountdown(ms: number) {
+  const safe = Math.max(0, ms);
+  const totalSeconds = Math.ceil(safe / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
 export default function PlayPage() {
   const [participant, setParticipant] = useState<StoredParticipant | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -43,6 +44,7 @@ export default function PlayPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'next' | 'missing' | 'all'>('next');
   const [loading, setLoading] = useState(true);
+  const [nowMs, setNowMs] = useState(Date.now());
 
   async function load() {
     setLoading(true);
@@ -81,8 +83,13 @@ export default function PlayPage() {
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 30000);
-    return () => clearInterval(interval);
+    const reloadInterval = setInterval(load, 30000);
+    const tickInterval = setInterval(() => setNowMs(Date.now()), 1000);
+
+    return () => {
+      clearInterval(reloadInterval);
+      clearInterval(tickInterval);
+    };
   }, []);
 
   const predictionMap = useMemo(() => new Map(predictions.map(p => [p.match_id, p])), [predictions]);
@@ -162,23 +169,15 @@ export default function PlayPage() {
         {visibleMatches.map(match => {
           const locked = !canPredict(match);
           const prediction = predictionMap.get(match.id);
+          const closeMs = closesAt(match).getTime() - nowMs;
+          const showCountdown = closeMs > 0 && closeMs <= COUNTDOWN_WINDOW_MS;
+          const closedByTime = closeMs <= 0;
+
           return (
-            <article className="match-card clean-match-card" key={match.id}>
-              <div className="match-meta">
-                <strong>{new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })}</strong>
-                <span>{match.stage}{match.group_name ? ` · ${match.group_name}` : ''}</span>
-                <span>{match.venue || 'Estadio a confirmar'}{match.city ? ` · ${match.city}` : ''}</span>
-              </div>
-
-              <div className="status-row">
-                <span className={`badge ${match.status === 'live' ? 'live' : locked ? 'closed' : 'ok'}`}>{statusLabel(match.status)}</span>
-                <span className="close-time">Cierra {closesAt(match).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}</span>
-              </div>
-
-              <div className="prediction-editor section">
-                <label className="team-score-line">
+            <article className="match-card clean-match-card ordered-match-card" key={match.id}>
+              <div className="teams-first">
+                <label className="team-score-line team-score-main">
                   <span className="team-side"><TeamBadge team={match.home_team} /></span>
-                  <span className="score-label">Goles</span>
                   <input
                     className="input prediction-input"
                     inputMode="numeric"
@@ -191,9 +190,8 @@ export default function PlayPage() {
 
                 <div className="versus-divider">VS</div>
 
-                <label className="team-score-line">
+                <label className="team-score-line team-score-main">
                   <span className="team-side"><TeamBadge team={match.away_team} /></span>
-                  <span className="score-label">Goles</span>
                   <input
                     className="input prediction-input"
                     inputMode="numeric"
@@ -205,15 +203,31 @@ export default function PlayPage() {
                 </label>
               </div>
 
+              <div className="match-info-center">
+                <strong>{new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })}</strong>
+                <span>{match.stage}{match.group_name ? ` · ${match.group_name}` : ''}</span>
+                <span>{match.venue || 'Estadio a confirmar'}{match.city ? ` · ${match.city}` : ''}</span>
+
+                {showCountdown && (
+                  <div className="closing-countdown">
+                    Cierra en {formatCountdown(closeMs)}
+                  </div>
+                )}
+
+                {closedByTime && (
+                  <div className="closed-small">
+                    Pronóstico cerrado
+                  </div>
+                )}
+              </div>
+
               {prediction && (
                 <div className="saved-prediction">
                   Guardado: {match.home_team} {prediction.pred_home} - {prediction.pred_away} {match.away_team}
                 </div>
               )}
 
-              {locked && <div className="locked-note">Pronóstico cerrado</div>}
-
-              <div className="match-actions">
+              <div className="match-actions bottom-actions">
                 <a className="button secondary" href={`/partidos/${match.id}`}>Detalles y pronósticos</a>
                 <button className="button primary" disabled={locked} onClick={() => savePrediction(match.id)}>Guardar</button>
               </div>

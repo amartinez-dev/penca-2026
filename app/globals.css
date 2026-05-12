@@ -1642,3 +1642,108 @@ h3 {
     padding: .85rem;
   }
 }
+
+/* =========================================================
+   Cards de partidos: equipos arriba, info al medio, botones abajo
+   ========================================================= */
+.ordered-match-card {
+  display: grid;
+  gap: .85rem;
+}
+
+.teams-first {
+  display: grid;
+  gap: .65rem;
+}
+
+.team-score-main {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: .75rem;
+}
+
+.team-score-main .prediction-input {
+  width: 58px;
+  min-width: 58px;
+  height: 48px;
+  min-height: 48px;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.match-info-center {
+  display: grid;
+  gap: .22rem;
+  justify-items: center;
+  text-align: center;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  padding: .8rem .4rem;
+  color: var(--muted);
+}
+
+.match-info-center strong {
+  color: var(--ink);
+}
+
+.closing-countdown {
+  margin-top: .4rem;
+  border: 2px solid #b00020;
+  color: #b00020;
+  padding: .42rem .6rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  background: #fff4f4;
+}
+
+.closed-small {
+  margin-top: .35rem;
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: .82rem;
+}
+
+.bottom-actions {
+  margin-top: 0;
+}
+
+.bottom-actions .button {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .ordered-match-card {
+    padding: .8rem;
+  }
+
+  .teams-first {
+    gap: .55rem;
+  }
+
+  .team-score-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: .65rem;
+  }
+
+  .team-score-main .team-name {
+    font-size: .96rem;
+  }
+
+  .team-score-main .prediction-input {
+    width: 54px;
+    min-width: 54px;
+    height: 46px;
+    min-height: 46px;
+    padding: .3rem;
+  }
+
+  .match-info-center {
+    padding: .7rem .35rem;
+    font-size: .92rem;
+  }
+
+  .closing-countdown {
+    font-size: .9rem;
+  }
+}
