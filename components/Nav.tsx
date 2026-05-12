@@ -14,30 +14,50 @@ function getStoredParticipant(): StoredParticipant | null {
 
 export function Nav() {
   const [participant, setParticipant] = useState<StoredParticipant | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setParticipant(getStoredParticipant());
-    const timer = setInterval(() => setParticipant(getStoredParticipant()), 1500);
+    const timer = setInterval(() => setParticipant(getStoredParticipant()), 1200);
     return () => clearInterval(timer);
   }, []);
+
+  function closeMenu() {
+    setOpen(false);
+  }
 
   function logout() {
     localStorage.removeItem('pencaParticipant');
     setParticipant(null);
+    setOpen(false);
     window.location.href = '/';
   }
 
   return (
-    <header className="topbar">
-      <Link className="brand-text" href="/" aria-label="Inicio">
+    <header className="topbar compact-topbar">
+      <Link className="brand-text" href="/" aria-label="Inicio" onClick={closeMenu}>
         Penca Salada 2026
       </Link>
 
-      <nav className="main-nav">
-        <Link href="/">Inicio</Link>
-        {participant && <Link href="/jugar">Jugar</Link>}
-        {participant && <Link href="/tabla">Tabla</Link>}
-        <Link href="/admin">Admin</Link>
+      <button
+        type="button"
+        className="menu-toggle"
+        aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+        aria-expanded={open}
+        onClick={() => setOpen(prev => !prev)}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+      {open && <button className="menu-backdrop" aria-label="Cerrar menú" onClick={closeMenu} />}
+
+      <nav className={`main-nav drawer-nav ${open ? 'open' : ''}`}>
+        <Link href="/" onClick={closeMenu}>Inicio</Link>
+        {participant && <Link href="/jugar" onClick={closeMenu}>Jugar</Link>}
+        {participant && <Link href="/tabla" onClick={closeMenu}>Tabla</Link>}
+        <Link href="/admin" onClick={closeMenu}>Admin</Link>
         {participant && <button type="button" onClick={logout}>Salir</button>}
       </nav>
     </header>

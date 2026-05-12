@@ -95,7 +95,6 @@ export default function PlayPage() {
   const visibleMatches = useMemo(() => {
     const now = Date.now();
     return matches.filter(match => {
-      // Los partidos de llaves futuras no se muestran para pronosticar hasta que ambos equipos estén definidos.
       if (!isMatchResolved(match)) return false;
       if (filter === 'all') return true;
       if (filter === 'next') return new Date(match.kickoff_at).getTime() >= now - 4 * 60 * 60_000 && match.status !== 'finished';
@@ -139,23 +138,24 @@ export default function PlayPage() {
       <section className="card">
         <h1>Entrá para jugar</h1>
         <p>Primero registrate o entrá con tu nombre y PIN desde la portada.</p>
-        <a className="button" href="/">Ir al inicio</a>
+        <a className="button primary" href="/">Ir al inicio</a>
       </section>
     );
   }
 
   return (
-    <section className="card">
+    <section className="card play-page-card">
       <div className="eyebrow">Hola, {participant.name}</div>
       <h1>Mis pronósticos</h1>
-      <p>Solo aparecen partidos con los dos equipos definidos. Las llaves futuras se habilitan automáticamente cuando el admin carga los resultados reales.</p>
+      <p>En cada tarjeta el primer marcador es para el equipo de arriba y el segundo marcador es para el equipo de abajo.</p>
 
-      <div className="actions">
-        <button className={`button ${filter === 'next' ? '' : 'secondary'}`} onClick={() => setFilter('next')}>Próximos</button>
-        <button className={`button ${filter === 'missing' ? '' : 'secondary'}`} onClick={() => setFilter('missing')}>Me faltan</button>
-        <button className={`button ${filter === 'all' ? '' : 'secondary'}`} onClick={() => setFilter('all')}>Todos habilitados</button>
-        <button className="button warn" onClick={saveAll}>Guardar visibles</button>
+      <div className="filter-bar actions">
+        <button className={`button ${filter === 'next' ? 'primary' : 'secondary'}`} onClick={() => setFilter('next')}>Próximos</button>
+        <button className={`button ${filter === 'missing' ? 'primary' : 'secondary'}`} onClick={() => setFilter('missing')}>Me faltan</button>
+        <button className={`button ${filter === 'all' ? 'primary' : 'secondary'}`} onClick={() => setFilter('all')}>Todos</button>
       </div>
+
+      <button className="button primary full-action" onClick={saveAll}>Guardar pronósticos visibles</button>
 
       {hiddenFutureMatches > 0 && (
         <div className="alert section">
@@ -170,42 +170,60 @@ export default function PlayPage() {
         {visibleMatches.map(match => {
           const locked = !canPredict(match);
           const prediction = predictionMap.get(match.id);
+          const draft = drafts[match.id] || { pred_home: '', pred_away: '' };
           return (
-            <article className="match-card" key={match.id}>
-              <div>
-                <div className="match-team"><TeamBadge team={match.home_team} /></div>
-                <div className="help section" style={{ marginTop: '.45rem' }}>
-                  {new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })}<br />
-                  {match.stage}{match.group_name ? ` · ${match.group_name}` : ''}<br />
-                  {match.venue || 'Estadio a confirmar'}{match.city ? ` · ${match.city}` : ''}
-                </div>
+            <article className="match-card bet-card" key={match.id}>
+              <div className="bet-card-meta">
+                <span>{new Date(match.kickoff_at).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                <span>{match.stage}{match.group_name ? ` · ${match.group_name}` : ''}</span>
+                <span>{match.venue || 'Estadio a confirmar'}{match.city ? ` · ${match.city}` : ''}</span>
               </div>
 
-              <div className="match-vs">
-                <div>VS</div>
-                <div className="section" style={{ marginTop: '.5rem' }}>
-                  <span className={`badge ${match.status === 'live' ? 'live' : locked ? 'closed' : 'ok'}`}>{statusLabel(match.status)}</span>
-                </div>
-                <div className="help section" style={{ marginTop: '.55rem' }}>
-                  Cierra {closesAt(match).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}
-                </div>
+              <div className="bet-status-row">
+                <span className={`badge ${match.status === 'live' ? 'live' : locked ? 'closed' : 'ok'}`}>{statusLabel(match.status)}</span>
+                <span className="closing-label">Cierra {closesAt(match).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
 
-              <div>
-                <div className="match-team away"><TeamBadge team={match.away_team} /></div>
-                <div className="section" style={{ textAlign: 'right' }}>
-                  <div className="score-inputs">
-                    <input className="input" inputMode="numeric" disabled={locked} value={drafts[match.id]?.pred_home ?? ''} onChange={e => setDrafts(prev => ({ ...prev, [match.id]: { ...prev[match.id], pred_home: e.target.value } }))} />
-                    <span>-</span>
-                    <input className="input" inputMode="numeric" disabled={locked} value={drafts[match.id]?.pred_away ?? ''} onChange={e => setDrafts(prev => ({ ...prev, [match.id]: { ...prev[match.id], pred_away: e.target.value } }))} />
-                  </div>
-                  {prediction && <div className="help">Guardado: {prediction.pred_home} - {prediction.pred_away}</div>}
-                  {locked && <div className="locked-note">Pronóstico cerrado</div>}
-                  <div className="actions" style={{ justifyContent: 'flex-end', marginTop: '.7rem' }}>
-                    <a className="button secondary" href={`/partidos/${match.id}`}>Detalles</a>
-                    <button className="button" disabled={locked} onClick={() => savePrediction(match.id)}>Guardar</button>
-                  </div>
+              <div className="prediction-editor" aria-label={`Pronóstico para ${match.home_team} contra ${match.away_team}`}>
+                <label className="team-score-line">
+                  <span className="team-side"><TeamBadge team={match.home_team} /></span>
+                  <span className="score-label">Goles</span>
+                  <input
+                    className="input prediction-input"
+                    inputMode="numeric"
+                    aria-label={`Goles de ${match.home_team}`}
+                    disabled={locked}
+                    value={draft.pred_home}
+                    onChange={e => setDrafts(prev => ({ ...prev, [match.id]: { ...prev[match.id], pred_home: e.target.value } }))}
+                  />
+                </label>
+
+                <div className="versus-divider">VS</div>
+
+                <label className="team-score-line">
+                  <span className="team-side"><TeamBadge team={match.away_team} /></span>
+                  <span className="score-label">Goles</span>
+                  <input
+                    className="input prediction-input"
+                    inputMode="numeric"
+                    aria-label={`Goles de ${match.away_team}`}
+                    disabled={locked}
+                    value={draft.pred_away}
+                    onChange={e => setDrafts(prev => ({ ...prev, [match.id]: { ...prev[match.id], pred_away: e.target.value } }))}
+                  />
+                </label>
+              </div>
+
+              {prediction && (
+                <div className="saved-prediction">
+                  Guardado: {match.home_team} {prediction.pred_home} - {prediction.pred_away} {match.away_team}
                 </div>
+              )}
+              {locked && <div className="locked-note">Pronóstico cerrado</div>}
+
+              <div className="card-actions-grid">
+                <a className="button secondary" href={`/partidos/${match.id}`}>Detalles y pronósticos</a>
+                <button className="button primary" disabled={locked} onClick={() => savePrediction(match.id)}>Guardar</button>
               </div>
             </article>
           );
