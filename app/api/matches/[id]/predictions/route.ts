@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 type PredictionWithParticipant = {
   id: string;
+  participant_id: string;
   pred_home: number;
   pred_away: number;
   updated_at: string;
@@ -21,7 +22,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     const supabase = supabaseAdmin();
     const { data, error } = await supabase
       .from('predictions')
-      .select('id, pred_home, pred_away, updated_at, participants(name)')
+      .select('id, participant_id, pred_home, pred_away, updated_at, participants(name)')
       .eq('match_id', id)
       .order('updated_at', { ascending: true });
 
@@ -29,6 +30,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
     const rows = ((data || []) as PredictionWithParticipant[]).map(row => ({
       id: row.id,
+      participant_id: row.participant_id,
       name: participantName(row.participants),
       pred_home: row.pred_home,
       pred_away: row.pred_away,

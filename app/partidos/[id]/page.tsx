@@ -89,6 +89,11 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
     };
   }, [predictions]);
 
+  const otherPredictions = useMemo(() => {
+    if (!participant) return predictions;
+    return predictions.filter(row => row.participant_id !== participant.id);
+  }, [predictions, participant]);
+
   async function savePrediction() {
     if (!participant || !match) return;
     setMessage(null);
@@ -141,92 +146,91 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       </p>
       {!resolved && <div className="alert section">Este partido todavía no acepta pronósticos porque falta definir al menos una selección.</div>}
 
-      <div className="grid two section">
-        <div className="card flat">
-          <h2>Mi pronóstico</h2>
-          {!participant && (
-            <div className="alert section">Entrá desde el inicio para cargar tu pronóstico.</div>
-          )}
-          {participant && (
-            <>
-              <div className="prediction-editor compact-editor section">
-                <label className="team-score-line">
-                  <span className="team-side"><TeamBadge team={match.home_team} /></span>
-                  <span className="score-label">Goles</span>
-                  <input
-                    className="input prediction-input"
-                    inputMode="numeric"
-                    aria-label={`Goles de ${match.home_team}`}
-                    disabled={locked}
-                    value={draft.pred_home}
-                    onChange={e => setDraft(prev => ({ ...prev, pred_home: e.target.value }))}
-                  />
-                </label>
-                <div className="versus-divider">VS</div>
-                <label className="team-score-line">
-                  <span className="team-side"><TeamBadge team={match.away_team} /></span>
-                  <span className="score-label">Goles</span>
-                  <input
-                    className="input prediction-input"
-                    inputMode="numeric"
-                    aria-label={`Goles de ${match.away_team}`}
-                    disabled={locked}
-                    value={draft.pred_away}
-                    onChange={e => setDraft(prev => ({ ...prev, pred_away: e.target.value }))}
-                  />
-                </label>
+      <div className="card flat section my-prediction-card">
+        <div className="section-title">Mi pronóstico</div>
+        {!participant && (
+          <div className="alert section">Entrá desde el inicio para cargar tu pronóstico.</div>
+        )}
+        {participant && (
+          <>
+            <div className="prediction-editor compact-editor section">
+              <label className="team-score-line">
+                <span className="team-side"><TeamBadge team={match.home_team} /></span>
+                <span className="score-label">Goles</span>
+                <input
+                  className="input prediction-input"
+                  inputMode="numeric"
+                  aria-label={`Goles de ${match.home_team}`}
+                  disabled={locked}
+                  value={draft.pred_home}
+                  onChange={e => setDraft(prev => ({ ...prev, pred_home: e.target.value }))}
+                />
+              </label>
+              <div className="versus-divider">VS</div>
+              <label className="team-score-line">
+                <span className="team-side"><TeamBadge team={match.away_team} /></span>
+                <span className="score-label">Goles</span>
+                <input
+                  className="input prediction-input"
+                  inputMode="numeric"
+                  aria-label={`Goles de ${match.away_team}`}
+                  disabled={locked}
+                  value={draft.pred_away}
+                  onChange={e => setDraft(prev => ({ ...prev, pred_away: e.target.value }))}
+                />
+              </label>
+            </div>
+            {myPrediction && (
+              <div className="saved-prediction section">
+                Guardado: {match.home_team} {myPrediction.pred_home} - {myPrediction.pred_away} {match.away_team}
               </div>
-              {myPrediction && (
-                <div className="saved-prediction section">
-                  Guardado: {match.home_team} {myPrediction.pred_home} - {myPrediction.pred_away} {match.away_team}
-                </div>
-              )}
-              {message && <div className="alert success section">{message}</div>}
-              {locked && <div className="locked-note">Pronóstico cerrado</div>}
-              <button className="button primary section" disabled={locked} onClick={savePrediction}>Guardar pronóstico</button>
-            </>
-          )}
+            )}
+            {message && <div className="alert success section">{message}</div>}
+            {locked && <div className="locked-note">Pronóstico cerrado</div>}
+            <button className="button primary section" disabled={locked} onClick={savePrediction}>Guardar pronóstico</button>
+          </>
+        )}
+      </div>
+
+      <div className="card flat section">
+        <div className="section-title">Pronósticos de otros jugadores</div>
+        <div className="prediction-summary compact-summary">
+          <div><strong>{summary.home}</strong><span>{match.home_team}</span></div>
+          <div><strong>{summary.draw}</strong><span>Empate</span></div>
+          <div><strong>{summary.away}</strong><span>{match.away_team}</span></div>
         </div>
 
+        <div className="section table-wrap">
+          <table>
+            <thead><tr><th>Participante</th><th>Pronóstico</th><th>Actualizado</th></tr></thead>
+            <tbody>
+              {otherPredictions.map(row => (
+                <tr key={row.id}>
+                  <td>{row.name}</td>
+                  <td><strong>{match.home_team} {row.pred_home} - {row.pred_away} {match.away_team}</strong></td>
+                  <td>{new Date(row.updated_at).toLocaleString('es-UY')}</td>
+                </tr>
+              ))}
+              {!otherPredictions.length && <tr><td colSpan={3}>Todavía no hay pronósticos de otros participantes para este partido.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="grid two section detail-info-grid">
         <div className="card flat">
-          <h2>Información</h2>
+          <div className="section-title">Información</div>
           <p><strong>Estadio:</strong> {match.venue || 'A confirmar'}</p>
           <p><strong>Ciudad:</strong> {match.city || 'A confirmar'}</p>
           <p><strong>Casillero original:</strong> {match.home_source || match.home_team} vs {match.away_source || match.away_team}</p>
           <p>{match.notes || 'Sin notas adicionales por ahora.'}</p>
         </div>
-      </div>
 
-      <div className="grid two section">
         <div className="card flat">
-          <h2>Alineaciones</h2>
+          <div className="section-title">Alineaciones</div>
           <p><strong>{match.home_team}:</strong> {match.home_lineup || 'Todavía no cargada.'}</p>
           <p><strong>{match.away_team}:</strong> {match.away_lineup || 'Todavía no cargada.'}</p>
         </div>
-        <div className="card flat">
-          <h2>Tendencia</h2>
-          <div className="prediction-summary">
-            <div><strong>{summary.home}</strong><span>{match.home_team}</span></div>
-            <div><strong>{summary.draw}</strong><span>Empate</span></div>
-            <div><strong>{summary.away}</strong><span>{match.away_team}</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div className="section table-wrap">
-        <table>
-          <thead><tr><th>Participante</th><th>Pronóstico</th><th>Actualizado</th></tr></thead>
-          <tbody>
-            {predictions.map(row => (
-              <tr key={row.id}>
-                <td>{row.name}</td>
-                <td><strong>{match.home_team} {row.pred_home} - {row.pred_away} {match.away_team}</strong></td>
-                <td>{new Date(row.updated_at).toLocaleString('es-UY')}</td>
-              </tr>
-            ))}
-            {!predictions.length && <tr><td colSpan={3}>Todavía nadie cargó pronóstico para este partido.</td></tr>}
-          </tbody>
-        </table>
       </div>
     </section>
   );

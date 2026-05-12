@@ -41,6 +41,7 @@ export type Prediction = {
 
 export type MatchPredictionRow = {
   id: string;
+  participant_id?: string;
   name: string;
   pred_home: number;
   pred_away: number;

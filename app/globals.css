@@ -1209,3 +1209,131 @@ h3 {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   Ajuste solicitado: inicio simple, menú limpio, detalle ordenado
+   ========================================================= */
+.simple-home {
+  display: grid;
+  min-height: calc(100dvh - 6rem);
+  align-items: start;
+}
+
+.login-card {
+  width: min(100%, 560px);
+  margin: 0 auto;
+}
+
+.login-card h1 {
+  font-size: clamp(2.8rem, 11vw, 5rem);
+}
+
+.compact-filter {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin-top: .75rem;
+}
+
+.mini-button {
+  width: auto !important;
+  min-height: 34px !important;
+  padding: .42rem .62rem !important;
+  font-size: .82rem !important;
+  border-width: 1.5px !important;
+}
+
+.compact-save {
+  width: auto !important;
+  min-height: 36px !important;
+  padding: .48rem .7rem !important;
+  font-size: .84rem !important;
+  margin-top: .55rem;
+}
+
+.section-title {
+  font-family: var(--font-heading), Arial Black, Impact, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.035em;
+  font-size: clamp(1.35rem, 6vw, 2.2rem);
+  line-height: 1;
+}
+
+.my-prediction-card {
+  background: var(--panel);
+}
+
+.compact-summary {
+  margin-top: .75rem;
+}
+
+.detail-info-grid {
+  align-items: start;
+}
+
+.match-detail-page .table-wrap {
+  margin-top: .75rem;
+}
+
+@media (max-width: 760px) {
+  .drawer-nav.open {
+    padding-top: 4.4rem;
+  }
+
+  .drawer-nav.open a,
+  .drawer-nav.open button {
+    font-size: 1rem;
+    font-weight: 900;
+  }
+
+  .simple-home {
+    min-height: auto;
+  }
+
+  .login-card {
+    margin-top: .25rem;
+  }
+
+  .compact-filter {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mini-button {
+    min-height: 34px !important;
+    padding: .38rem .35rem !important;
+    font-size: .78rem !important;
+  }
+
+  .compact-save {
+    width: 100% !important;
+  }
+
+  .play-page-card h1 {
+    font-size: clamp(2.3rem, 12vw, 3.3rem);
+  }
+
+  .section-title {
+    font-size: clamp(1.45rem, 7vw, 2.05rem);
+  }
+
+  .match-detail-page h1 {
+    font-size: clamp(1.75rem, 8.5vw, 2.45rem);
+  }
+
+  .detail-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .compact-filter {
+    gap: .3rem;
+  }
+
+  .mini-button {
+    font-size: .74rem !important;
+    padding-left: .25rem !important;
+    padding-right: .25rem !important;
+  }
+}

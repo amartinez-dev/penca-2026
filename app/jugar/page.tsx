@@ -146,16 +146,16 @@ export default function PlayPage() {
   return (
     <section className="card play-page-card">
       <div className="eyebrow">Hola, {participant.name}</div>
-      <h1>Mis pronósticos</h1>
-      <p>En cada tarjeta el primer marcador es para el equipo de arriba y el segundo marcador es para el equipo de abajo.</p>
+      <h1>Jugar</h1>
+      <p>Elegí tus resultados. Cada casillero de goles está junto a su selección.</p>
 
-      <div className="filter-bar actions">
-        <button className={`button ${filter === 'next' ? 'primary' : 'secondary'}`} onClick={() => setFilter('next')}>Próximos</button>
-        <button className={`button ${filter === 'missing' ? 'primary' : 'secondary'}`} onClick={() => setFilter('missing')}>Me faltan</button>
-        <button className={`button ${filter === 'all' ? 'primary' : 'secondary'}`} onClick={() => setFilter('all')}>Todos</button>
+      <div className="filter-bar compact-filter">
+        <button className={`button mini-button ${filter === 'next' ? 'primary' : 'secondary'}`} onClick={() => setFilter('next')}>Próximos</button>
+        <button className={`button mini-button ${filter === 'missing' ? 'primary' : 'secondary'}`} onClick={() => setFilter('missing')}>Me faltan</button>
+        <button className={`button mini-button ${filter === 'all' ? 'primary' : 'secondary'}`} onClick={() => setFilter('all')}>Todos</button>
       </div>
 
-      <button className="button primary full-action" onClick={saveAll}>Guardar pronósticos visibles</button>
+      <button className="button secondary compact-save" onClick={saveAll}>Guardar visibles</button>
 
       {hiddenFutureMatches > 0 && (
         <div className="alert section">

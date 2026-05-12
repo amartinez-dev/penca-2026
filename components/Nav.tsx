@@ -18,7 +18,7 @@ export function Nav() {
 
   useEffect(() => {
     setParticipant(getStoredParticipant());
-    const timer = setInterval(() => setParticipant(getStoredParticipant()), 1200);
+    const timer = setInterval(() => setParticipant(getStoredParticipant()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -35,7 +35,7 @@ export function Nav() {
 
   return (
     <header className="topbar compact-topbar">
-      <Link className="brand-text" href="/" aria-label="Inicio" onClick={closeMenu}>
+      <Link className="brand-text" href={participant ? '/jugar' : '/'} aria-label="Penca Salada 2026" onClick={closeMenu}>
         Penca Salada 2026
       </Link>
 
@@ -54,10 +54,11 @@ export function Nav() {
       {open && <button className="menu-backdrop" aria-label="Cerrar menú" onClick={closeMenu} />}
 
       <nav className={`main-nav drawer-nav ${open ? 'open' : ''}`}>
-        <Link href="/" onClick={closeMenu}>Inicio</Link>
+        {!participant && <Link href="/registrar" onClick={closeMenu}>Registrar</Link>}
+        {!participant && <Link href="/admin" onClick={closeMenu}>Admin</Link>}
+
         {participant && <Link href="/jugar" onClick={closeMenu}>Jugar</Link>}
         {participant && <Link href="/tabla" onClick={closeMenu}>Tabla</Link>}
-        <Link href="/admin" onClick={closeMenu}>Admin</Link>
         {participant && <button type="button" onClick={logout}>Salir</button>}
       </nav>
     </header>
